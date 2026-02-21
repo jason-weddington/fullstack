@@ -72,6 +72,8 @@ Tests must be written alongside the code they cover, not bolted on after the fac
 - **Human verification for critical paths** — AI-generated code that handles privacy or security must produce outputs a human can independently verify. Write scripts, tests, or tooling that make verification easy. "The AI wrote it" is not a defense — the human is accountable, so make accountability painless.
 
 ## Patterns to Follow
+The notes app (`note_routes.py`, `Dashboard.tsx`, etc.) is example scaffolding that demonstrates the project's patterns. Replace it with your actual domain — don't build alongside it.
+
 - **Backend CRUD**: See `note_routes.py` — ownership checks, PATCH with partial updates, 204 on DELETE
 - **API client**: See `api.ts` — namespaced methods, automatic snake/camelCase conversion, token handling
 - **Dialogs**: See `Dashboard.tsx` — shared create/edit dialog distinguished by null/non-null editing state
