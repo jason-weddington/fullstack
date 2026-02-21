@@ -19,6 +19,7 @@ dev = [
     "pytest>=8",
     "pytest-cov>=6",
     "pytest-asyncio>=0.25",
+    "hypothesis>=6.100",
     "pre-commit>=4",
     "httpx>=0.28",
 ]

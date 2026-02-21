@@ -1,29 +1,6 @@
 """Smoke tests for {{title}} API."""
 
-import pytest
-from httpx import ASGITransport, AsyncClient
-
-from {{name}}.database import close_db, init_db
-from {{name}}.main import app
-
-
-@pytest.fixture(autouse=True)
-async def _setup_db(tmp_path, monkeypatch):
-    """Init an in-memory test database for each test."""
-    import {{name}}.database as db_mod
-
-    monkeypatch.setattr(db_mod, "_DB_PATH", tmp_path / "test.db")
-    monkeypatch.setattr(db_mod, "_db", None)
-    await init_db()
-    yield
-    await close_db()
-
-
-@pytest.fixture
-async def client():
-    transport = ASGITransport(app=app)
-    async with AsyncClient(transport=transport, base_url="http://test") as c:
-        yield c
+from httpx import AsyncClient
 
 
 async def test_health(client: AsyncClient):
@@ -52,20 +29,12 @@ async def test_register_and_login(client: AsyncClient):
     assert "token" in res.json()
 
 
-async def test_notes_crud(client: AsyncClient):
-    # Register to get a token
-    res = await client.post(
-        "/api/auth/register",
-        json={"email": "notes@example.com", "password": "testpass123"},
-    )
-    token = res.json()["token"]
-    headers = {"Authorization": f"Bearer {token}"}
-
+async def test_notes_crud(client: AsyncClient, auth_headers: dict[str, str]):
     # Create a note
     res = await client.post(
         "/api/notes",
         json={"title": "Test Note", "content": "Hello world", "tags": ["test"]},
-        headers=headers,
+        headers=auth_headers,
     )
     assert res.status_code == 201
     note = res.json()
@@ -73,7 +42,7 @@ async def test_notes_crud(client: AsyncClient):
     note_id = note["id"]
 
     # List notes
-    res = await client.get("/api/notes", headers=headers)
+    res = await client.get("/api/notes", headers=auth_headers)
     assert res.status_code == 200
     assert len(res.json()) == 1
 
@@ -81,16 +50,16 @@ async def test_notes_crud(client: AsyncClient):
     res = await client.patch(
         f"/api/notes/{note_id}",
         json={"title": "Updated Note"},
-        headers=headers,
+        headers=auth_headers,
     )
     assert res.status_code == 200
     assert res.json()["title"] == "Updated Note"
 
     # Delete the note
-    res = await client.delete(f"/api/notes/{note_id}", headers=headers)
+    res = await client.delete(f"/api/notes/{note_id}", headers=auth_headers)
     assert res.status_code == 204
 
     # Verify deletion
-    res = await client.get("/api/notes", headers=headers)
+    res = await client.get("/api/notes", headers=auth_headers)
     assert res.status_code == 200
     assert len(res.json()) == 0
