@@ -1,6 +1,8 @@
 # fullstack
 
-AI-native full-stack starter kit. Scaffold a production-ready Python + React project and start building by talking to Claude.
+AI-native full-stack starter kit. Go from zero to a running app in one command, then build on it by talking to Claude.
+
+Designed for rapid ideation and local prototyping — not production use. You're on your own for hardening, security, deployment, etc.
 
 ## Quick Start
 
