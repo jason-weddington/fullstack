@@ -50,14 +50,19 @@ export default function Layout() {
             <MenuIcon />
           </IconButton>
 
-          <AppsIcon sx={{ mr: 1, color: 'primary.light' }} />
-          <Typography
-            variant="h6"
-            component="div"
-            sx={{ fontWeight: 700, letterSpacing: -0.5, flexGrow: 1 }}
+          <Box
+            onClick={() => navigate('/')}
+            sx={{ display: 'flex', alignItems: 'center', cursor: 'pointer', flexGrow: 1 }}
           >
-            {{title}}
-          </Typography>
+            <AppsIcon sx={{ mr: 1, color: 'primary.light' }} />
+            <Typography
+              variant="h6"
+              component="div"
+              sx={{ fontWeight: 700, letterSpacing: -0.5 }}
+            >
+              {{title}}
+            </Typography>
+          </Box>
 
           <Tooltip title={mode === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}>
             <IconButton color="inherit" onClick={toggleTheme} sx={{ mr: 1 }}>
