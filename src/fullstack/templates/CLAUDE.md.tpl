@@ -59,6 +59,7 @@ When starting a feature branch, create `planning/<branch-name>/feature.md` to ca
 - **Adapt to context** — empty states guide users, populated states show data efficiently
 - **Progressive disclosure** — show core actions up front, advanced options in settings/dialogs
 - **Minimal chrome** — content-first layout, UI gets out of the way
+- **No dead ends** — app logo/title in the header always navigates home; every screen should be escapable
 
 ## Patterns to Follow
 - **Backend CRUD**: See `note_routes.py` — ownership checks, PATCH with partial updates, 204 on DELETE
