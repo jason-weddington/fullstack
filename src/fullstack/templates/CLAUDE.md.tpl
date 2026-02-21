@@ -2,6 +2,7 @@
 ```bash
 uv sync                              # Install Python dependencies
 uv run pytest                        # Run tests
+uv run pytest --cov={{name}}         # Tests with coverage report
 uv run ruff check .                  # Lint
 uv run ruff format .                 # Format
 uv run mypy src/                     # Type check
@@ -9,6 +10,7 @@ uv run pre-commit run --all-files    # Run all pre-commit hooks
 
 npm --prefix frontend install        # Install frontend dependencies
 npm --prefix frontend run dev        # Start frontend dev server (port 5173)
+npm --prefix frontend run test       # Run frontend tests (vitest)
 npm --prefix frontend run build      # Production build
 
 ./start.sh                           # Start both backend + frontend dev servers
@@ -51,6 +53,12 @@ When starting a feature branch, create `planning/<branch-name>/feature.md` to ca
 - **Pre-commit hooks**: Enforced on every commit (ruff, mypy, trailing whitespace, etc.)
 - Planning directory is excluded from Python linting
 
+## Testing Discipline
+Tests must be written alongside the code they cover, not bolted on after the fact. When implementing a new feature or fixing a bug:
+- **Backend**: Write unit tests for any new pure functions, model defaults, or service logic. Use `hypothesis` for property-based tests where inputs have mathematical invariants (distances, roundtrips, encodings). Privacy-critical paths require explicit test coverage before merging.
+- **Frontend**: Write vitest tests for any new pure/exported utility functions. Keep testable logic in pure functions (e.g., `utils.ts`) separate from React components.
+- **Run tests before committing**: `uv run pytest` and `npm --prefix frontend run test` should both pass.
+
 ## Design Principles
 - **Proximity** — related controls live next to the content they affect
 - **Consistency** — same patterns for same problems (dialogs, loading states, error handling)
@@ -60,6 +68,8 @@ When starting a feature branch, create `planning/<branch-name>/feature.md` to ca
 - **Progressive disclosure** — show core actions up front, advanced options in settings/dialogs
 - **Minimal chrome** — content-first layout, UI gets out of the way
 - **No dead ends** — app logo/title in the header always navigates home; every screen should be escapable
+- **Privacy by default** — users who don't understand and just click OK must be protected. Defaults are always the safest option. Users who understand the implications can explicitly open things up.
+- **Human verification for critical paths** — AI-generated code that handles privacy or security must produce outputs a human can independently verify. Write scripts, tests, or tooling that make verification easy. "The AI wrote it" is not a defense — the human is accountable, so make accountability painless.
 
 ## Patterns to Follow
 - **Backend CRUD**: See `note_routes.py` — ownership checks, PATCH with partial updates, 204 on DELETE
