@@ -8,6 +8,9 @@ uv run ruff format .                 # Format
 uv run mypy src/                     # Type check
 uv run pre-commit run --all-files    # Run all pre-commit hooks
 
+# Install pre-commit and pre-push hooks (not carried by git clone)
+uv run pre-commit install --hook-type pre-commit --hook-type pre-push
+
 npm --prefix frontend install        # Install frontend dependencies
 npm --prefix frontend run dev        # Start frontend dev server (port 5173)
 npm --prefix frontend run test       # Run frontend tests (vitest)
@@ -50,7 +53,8 @@ When starting a feature branch, create `planning/<branch-name>/feature.md` to ca
 ## Code Style
 - **Python**: Ruff (linting + formatting), mypy strict mode, Google-style docstrings
 - **TypeScript**: ESLint + strict tsconfig (noUnusedLocals, noUnusedParameters)
-- **Pre-commit hooks**: Enforced on every commit (ruff, mypy, trailing whitespace, etc.)
+- **Pre-commit hooks**: Enforced on every commit (ruff, mypy, eslint, tsc, gitleaks secrets detection, trailing whitespace, etc.)
+- **Pre-push hooks**: Test coverage enforcement — `git push` is blocked if coverage drops below the `fail_under` threshold in `pyproject.toml`
 - Planning directory is excluded from Python linting
 
 ## Testing Discipline

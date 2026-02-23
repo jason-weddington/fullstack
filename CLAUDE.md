@@ -31,7 +31,7 @@ npm --prefix frontend run build                  # Production build
 
 ### Scaffolding Engine (`src/fullstack/cli.py`)
 
-The CLI walks `src/fullstack/templates/`, processes `.tpl` files by replacing `{{name}}` and `{{title}}` placeholders, renames `__package__` directories to the project name, then runs `git init`, `uv sync`, `npm install`, `pre-commit install`, and an initial commit.
+The CLI walks `src/fullstack/templates/`, processes `.tpl` files by replacing `{{name}}` and `{{title}}` placeholders, renames `__package__` directories to the project name, then runs `git init`, `uv sync`, `npm install`, `pre-commit install` (with both pre-commit and pre-push hook types), and an initial commit.
 
 Files without `.tpl` are copied verbatim. The `.tpl` extension is stripped in the output.
 
@@ -60,7 +60,9 @@ Files without `.tpl` are copied verbatim. The `.tpl` extension is stripped in th
 ### Tooling in Generated Projects
 - **Python**: Ruff (linting + formatting), mypy strict, Google-style docstrings, hypothesis for property-based tests
 - **TypeScript**: ESLint, strict tsconfig (noUnusedLocals, noUnusedParameters)
-- **Pre-commit**: ruff, mypy, trailing whitespace, end-of-file fixer, YAML/TOML checks, file size limits
+- **Pre-commit**: ruff, mypy, eslint, tsc, gitleaks (secrets detection), trailing whitespace, end-of-file fixer, YAML/TOML checks, file size limits
+- **Pre-push**: Test coverage enforcement via pytest-cov with `fail_under` threshold (blocks `git push` if coverage drops)
+- **DeprecationWarning as error**: pytest treats DeprecationWarnings as errors to prevent deprecated code from accumulating
 - `planning/` directory excluded from Python linting
 
 ## Modifying Templates

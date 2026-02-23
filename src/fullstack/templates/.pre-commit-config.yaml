@@ -9,6 +9,11 @@ repos:
       - id: check-added-large-files
         args: ["--maxkb=1000"]
 
+  - repo: https://github.com/gitleaks/gitleaks
+    rev: v8.24.3
+    hooks:
+      - id: gitleaks
+
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: v0.9.7
     hooks:
@@ -25,3 +30,25 @@ repos:
         types: [python]
         pass_filenames: false
         args: [src/]
+
+      - id: eslint
+        name: eslint
+        entry: npm --prefix frontend run lint
+        language: system
+        pass_filenames: false
+        files: '^frontend/.*\.(ts|tsx)$'
+
+      - id: tsc
+        name: tsc
+        entry: bash -c "cd frontend && npx tsc -b --noEmit"
+        language: system
+        pass_filenames: false
+        files: '^frontend/.*\.(ts|tsx)$'
+
+      - id: coverage
+        name: test coverage
+        entry: uv run pytest --cov --cov-report=term-missing
+        language: system
+        pass_filenames: false
+        always_run: true
+        stages: [pre-push]
