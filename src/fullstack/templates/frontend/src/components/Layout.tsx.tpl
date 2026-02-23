@@ -126,10 +126,9 @@ export default function Layout() {
         sx={{
           flexGrow: 1,
           mt: '64px',
-          ml: sidebarOpen ? `${DRAWER_WIDTH}px` : 0,
-          transition: 'margin-left 225ms cubic-bezier(0, 0, 0.2, 1)',
           p: 3,
           minHeight: 'calc(100vh - 64px)',
+          transition: 'margin-left 225ms cubic-bezier(0, 0, 0.2, 1)',
         }}
       >
         <Outlet />

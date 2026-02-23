@@ -127,9 +127,16 @@ def main() -> None:
     if run_cmd(["npm", "--prefix", "frontend", "install"], dest):
         print("  ✓ Frontend dependencies installed")
 
-    # 6. Install pre-commit hooks
-    if run_cmd(["uv", "run", "pre-commit", "install"], dest):
-        print("  ✓ Pre-commit hooks installed")
+    # 6. Install pre-commit and pre-push hooks
+    if run_cmd(
+        [
+            "uv", "run", "pre-commit", "install",
+            "--hook-type", "pre-commit",
+            "--hook-type", "pre-push",
+        ],
+        dest,
+    ):
+        print("  ✓ Pre-commit and pre-push hooks installed")
 
     # 7. Initial commit (retry once — pre-commit hooks may fix whitespace)
     run_cmd(["git", "add", "-A"], dest)

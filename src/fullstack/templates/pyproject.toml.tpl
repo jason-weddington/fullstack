@@ -71,6 +71,15 @@ ignore_missing_imports = true
 testpaths = ["tests"]
 asyncio_mode = "auto"
 addopts = "--strict-markers -v"
+filterwarnings = [
+    "error::DeprecationWarning",
+]
+
+[tool.coverage.run]
+source = ["{{name}}"]
+
+[tool.coverage.report]
+fail_under = 50
 
 [build-system]
 requires = ["hatchling"]

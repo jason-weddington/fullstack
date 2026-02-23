@@ -26,22 +26,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     const token = localStorage.getItem('{{name}}-token')
-    if (!token) {
-      setLoading(false)
-      return
-    }
+    if (!token) return
+    let cancelled = false
     api.auth
       .me()
       .then((u) => {
+        if (cancelled) return
         setUser(u)
         localStorage.setItem('{{name}}-user', JSON.stringify(u))
       })
       .catch(() => {
+        if (cancelled) return
         localStorage.removeItem('{{name}}-token')
         localStorage.removeItem('{{name}}-user')
         setUser(null)
       })
-      .finally(() => setLoading(false))
+      .finally(() => {
+        if (!cancelled) setLoading(false)
+      })
+    return () => { cancelled = true }
   }, [])
 
   const login = useCallback(async (email: string, password: string) => {
