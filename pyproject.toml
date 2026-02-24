@@ -8,6 +8,12 @@ dependencies = []
 [project.scripts]
 fullstack = "fullstack.cli:main"
 
+[tool.semantic_release]
+version_toml = ["pyproject.toml:project.version"]
+commit_parser = "conventional"
+changelog_file = "CHANGELOG.md"
+build_command = "uv build"
+
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
