@@ -5,7 +5,7 @@ import os
 import stat
 import subprocess
 import sys
-from importlib import resources
+from importlib import metadata, resources
 from pathlib import Path
 
 
@@ -87,6 +87,11 @@ def main() -> None:
     parser = argparse.ArgumentParser(
         prog="fullstack",
         description="Scaffold a new AI-native full-stack project",
+    )
+    parser.add_argument(
+        "-v", "--version",
+        action="version",
+        version=f"%(prog)s {metadata.version('fullstack')}",
     )
     parser.add_argument(
         "project_name",

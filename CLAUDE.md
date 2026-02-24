@@ -13,6 +13,7 @@ A pip-installable CLI (`fullstack`) that scaffolds new AI-native full-stack proj
 uv sync                                          # Install fullstack CLI deps
 uv run fullstack my_test_app                     # Scaffold a new project
 cd my_test_app && ./start.sh                     # Verify it runs (backend :8000, frontend :5173)
+fullstack --version                              # Check installed version
 
 # Inside a generated project, these commands apply:
 uv run pytest                                    # Backend tests
@@ -25,6 +26,10 @@ uv run pre-commit run --all-files                # All pre-commit hooks
 npm --prefix frontend install                    # Install frontend deps
 npm --prefix frontend run test                   # Frontend tests (vitest)
 npm --prefix frontend run build                  # Production build
+
+# Release workflow (in this repo):
+uvx semantic-release version                     # Bump version, update CHANGELOG.md, tag
+uvx semantic-release publish                     # (if publishing to PyPI)
 ```
 
 ## Architecture
@@ -64,6 +69,26 @@ Files without `.tpl` are copied verbatim. The `.tpl` extension is stripped in th
 - **Pre-push**: Test coverage enforcement via pytest-cov with `fail_under` threshold (blocks `git push` if coverage drops)
 - **DeprecationWarning as error**: pytest treats DeprecationWarnings as errors to prevent deprecated code from accumulating
 - `planning/` directory excluded from Python linting
+
+## Commit Convention
+
+This repo uses **conventional commits** enforced by a `commit-msg` hook. All commit messages must follow the format:
+
+```
+type(optional-scope): description
+
+optional body
+```
+
+Common types:
+- `feat:` — new feature (bumps minor version)
+- `fix:` — bug fix (bumps patch version)
+- `chore:` — maintenance, deps, config (no version bump)
+- `docs:` — documentation only (no version bump)
+- `refactor:` — code change that neither fixes a bug nor adds a feature (no version bump)
+- Add `!` after type for breaking changes: `feat!:` (bumps major version)
+
+`python-semantic-release` reads these prefixes to auto-determine version bumps and generate CHANGELOG.md.
 
 ## Modifying Templates
 
