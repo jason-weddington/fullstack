@@ -20,7 +20,7 @@ import LogoutIcon from '@mui/icons-material/Logout'
 import AppsIcon from '@mui/icons-material/Apps'
 import { useThemeMode } from '../contexts/ThemeContext'
 import { useAuth } from '../contexts/AuthContext'
-import Sidebar, { DRAWER_WIDTH } from './Sidebar'
+import Sidebar from './Sidebar'
 
 export default function Layout() {
   const { mode, toggleTheme } = useThemeMode()
