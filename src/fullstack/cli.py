@@ -132,27 +132,29 @@ def main() -> None:
     if run_cmd(["npm", "--prefix", "frontend", "install"], dest):
         print("  ✓ Frontend dependencies installed")
 
-    # 6. Install pre-commit and pre-push hooks
+    # 6. Install git hooks (pre-commit, commit-msg, post-commit, pre-push)
     if run_cmd(
         [
             "uv", "run", "pre-commit", "install",
             "--hook-type", "pre-commit",
+            "--hook-type", "commit-msg",
+            "--hook-type", "post-commit",
             "--hook-type", "pre-push",
         ],
         dest,
     ):
-        print("  ✓ Pre-commit and pre-push hooks installed")
+        print("  ✓ Git hooks installed")
 
     # 7. Initial commit (retry once — pre-commit hooks may fix whitespace)
     run_cmd(["git", "add", "-A"], dest)
     if not run_cmd(
-        ["git", "commit", "-m", "Initial scaffold from fullstack"],
+        ["git", "commit", "-m", "chore: initial scaffold from fullstack"],
         dest,
         quiet=True,
     ):
         run_cmd(["git", "add", "-A"], dest)
         if run_cmd(
-            ["git", "commit", "-m", "Initial scaffold from fullstack"], dest
+            ["git", "commit", "-m", "chore: initial scaffold from fullstack"], dest
         ):
             print("  ✓ Initial commit created")
         else:
