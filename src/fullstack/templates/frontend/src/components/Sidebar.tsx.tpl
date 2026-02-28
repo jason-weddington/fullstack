@@ -77,5 +77,3 @@ export default function Sidebar({ open }: SidebarProps) {
     </Drawer>
   )
 }
-
-export { DRAWER_WIDTH }
