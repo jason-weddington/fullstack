@@ -8,8 +8,8 @@ uv run ruff format .                 # Format
 uv run mypy src/                     # Type check
 uv run pre-commit run --all-files    # Run all pre-commit hooks
 
-# Install pre-commit and pre-push hooks (not carried by git clone)
-uv run pre-commit install --hook-type pre-commit --hook-type pre-push
+# Install git hooks (not carried by git clone)
+uv run pre-commit install --hook-type pre-commit --hook-type commit-msg --hook-type post-commit --hook-type pre-push
 
 npm --prefix frontend install        # Install frontend dependencies
 npm --prefix frontend run dev        # Start frontend dev server (port 5173)
@@ -50,18 +50,32 @@ npm --prefix frontend run build      # Production build
 ## Planning Convention
 When starting a feature branch, create `planning/<branch-name>/feature.md` to capture requirements and design decisions before coding. This serves as a durable reference artifact. Use Claude's built-in task tools for implementation tracking.
 
+## Commit Convention
+This repo uses **conventional commits** enforced by a `commit-msg` hook. Format: `type(optional-scope): description`
+
+- `feat:` — new feature (bumps minor)
+- `fix:` — bug fix (bumps patch)
+- `chore:` — maintenance, deps, config (no bump)
+- `docs:` — documentation only (no bump)
+- `refactor:` — restructuring (no bump)
+- `feat!:` or `fix!:` — breaking change (bumps major)
+
+Releases are automated via a post-commit hook on main. When a `feat:` or `fix:` commit lands on main, `semantic-release version` runs automatically — bumps pyproject.toml, updates CHANGELOG.md and uv.lock, commits, and tags. You just need to `git push origin main --tags` after.
+
 ## Code Style
 - **Python**: Ruff (linting + formatting), mypy strict mode, Google-style docstrings
 - **TypeScript**: ESLint + strict tsconfig (noUnusedLocals, noUnusedParameters)
 - **Pre-commit hooks**: Enforced on every commit (ruff, mypy, eslint, tsc, gitleaks secrets detection, trailing whitespace, etc.)
 - **Pre-push hooks**: Test coverage enforcement — `git push` is blocked if coverage drops below the `fail_under` threshold in `pyproject.toml`
 - Planning directory is excluded from Python linting
+- Local hooks that use `uv run` (mypy, pytest, etc.) use `uv run --frozen` to prevent uv from rebuilding the package mid-hook
 
 ## Testing Discipline
 Tests must be written alongside the code they cover, not bolted on after the fact. When implementing a new feature or fixing a bug:
 - **Backend**: Write unit tests for any new pure functions, model defaults, or service logic. Use `hypothesis` for property-based tests where inputs have mathematical invariants (distances, roundtrips, encodings). Privacy-critical paths require explicit test coverage before merging.
 - **Frontend**: Write vitest tests for any new pure/exported utility functions. Keep testable logic in pure functions (e.g., `utils.ts`) separate from React components.
 - **Run tests before committing**: `uv run pytest` and `npm --prefix frontend run test` should both pass.
+- **Ratchet coverage**: After adding tests, increase `fail_under` in `pyproject.toml [tool.coverage.report]` up to the new coverage floor. Coverage should only ever go up.
 
 ## Design Principles
 - **Proximity** — related controls live next to the content they affect

@@ -22,6 +22,7 @@ dev = [
     "hypothesis>=6.100",
     "pre-commit>=4",
     "httpx>=0.28",
+    "python-semantic-release>=9",
 ]
 
 [tool.ruff]
@@ -52,7 +53,7 @@ select = [
 convention = "google"
 
 [tool.ruff.lint.per-file-ignores]
-"tests/**" = ["S101", "D"]
+"tests/**" = ["S101", "S106", "D"]
 
 [tool.mypy]
 python_version = "3.13"
@@ -80,6 +81,17 @@ source = ["{{name}}"]
 
 [tool.coverage.report]
 fail_under = 50
+
+[tool.semantic_release]
+version_toml = ["pyproject.toml:project.version"]
+commit_parser = "conventional"
+changelog_file = "CHANGELOG.md"
+commit_message = "chore(release): {version}"
+build_command = "uv lock && git add uv.lock && uv build"
+push = false
+
+[tool.semantic_release.publish]
+upload_to_vcs_release = false
 
 [build-system]
 requires = ["hatchling"]

@@ -14,6 +14,12 @@ repos:
     hooks:
       - id: gitleaks
 
+  - repo: https://github.com/compilerla/conventional-pre-commit
+    rev: v4.4.0
+    hooks:
+      - id: conventional-pre-commit
+        stages: [commit-msg]
+
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: v0.9.7
     hooks:
@@ -25,7 +31,7 @@ repos:
     hooks:
       - id: mypy
         name: mypy
-        entry: uv run mypy
+        entry: uv run --frozen mypy
         language: system
         types: [python]
         pass_filenames: false
@@ -45,9 +51,17 @@ repos:
         pass_filenames: false
         files: '^frontend/.*\.(ts|tsx)$'
 
+      - id: semantic-release
+        name: semantic-release
+        entry: bash -c 'branch=$(git rev-parse --abbrev-ref HEAD); msg=$(git log -1 --format=%s); if [ "$branch" = "main" ] && [[ "$msg" != chore\(release\):* ]]; then uv run semantic-release version; fi'
+        language: system
+        pass_filenames: false
+        always_run: true
+        stages: [post-commit]
+
       - id: coverage
         name: test coverage
-        entry: uv run pytest --cov --cov-report=term-missing
+        entry: uv run --frozen pytest --cov --cov-report=term-missing
         language: system
         pass_filenames: false
         always_run: true
