@@ -23,29 +23,87 @@ npm --prefix frontend run build      # Production build
 ```
 {{name}}/
 ├── src/{{name}}/              # Python backend (FastAPI)
-│   ├── main.py                # App entry point, lifespan, CORS
-│   ├── auth.py                # JWT + bcrypt auth utilities
-│   ├── database.py            # Async SQLite (aiosqlite, WAL mode)
-│   ├── models.py              # Pydantic v2 domain + API models
+│   ├── main.py                # App entry, lifespan (init/close DB), CORS, router mounts
+│   ├── auth.py                # JWT (HS256, 72h) + bcrypt, get_current_user dependency
+│   ├── database.py            # Async SQLite (aiosqlite, WAL mode), singleton connection
+│   ├── models.py              # Pydantic v2 domain models + API request/response schemas
 │   └── routes/
-│       ├── auth_routes.py     # Register, login, logout, me
-│       └── note_routes.py     # Notes CRUD (example resource)
-├── tests/                     # Python tests (pytest)
-├── frontend/                  # React + TypeScript + MUI 6 (Vite)
-│   └── src/
-│       ├── api.ts             # Typed API client with snake/camelCase conversion
-│       ├── types.ts           # TypeScript interfaces
-│       ├── contexts/          # Auth + Theme providers
-│       ├── components/        # Layout, Sidebar, ProtectedRoute
-│       └── pages/             # Login, Dashboard, Settings
+│       ├── auth_routes.py     # POST register, login, logout; GET me
+│       └── note_routes.py     # Notes CRUD — example resource, replace with your domain
+├── tests/
+│   ├── conftest.py            # Shared fixtures (async client, test DB, auth helpers)
+│   ├── test_auth.py           # Auth endpoint tests
+│   └── test_smoke.py          # Health check, app startup
+├── frontend/                  # React 19 + TypeScript + MUI 7 (Vite)
+│   ├── src/
+│   │   ├── App.tsx            # Route definitions (react-router-dom v7)
+│   │   ├── main.tsx           # React root with Auth + Theme providers
+│   │   ├── api.ts             # Typed API client — auto snake/camelCase conversion
+│   │   ├── types.ts           # TypeScript interfaces matching backend response schemas
+│   │   ├── utils.ts           # Pure utilities (key conversion) — tested
+│   │   ├── theme.ts           # MUI theme customization
+│   │   ├── contexts/
+│   │   │   ├── AuthContext.tsx # Login/register/logout, JWT in localStorage
+│   │   │   └── ThemeContext.tsx# Dark/light toggle, persisted in localStorage
+│   │   ├── components/
+│   │   │   ├── Layout.tsx     # App shell: header, sidebar, content area
+│   │   │   ├── Sidebar.tsx    # Navigation drawer
+│   │   │   └── ProtectedRoute.tsx  # Redirects to /login if not authenticated
+│   │   ├── pages/
+│   │   │   ├── Login.tsx      # Login + registration form
+│   │   │   ├── Dashboard.tsx  # Notes CRUD — example page, replace with your domain
+│   │   │   └── Settings.tsx   # User settings (theme toggle, etc.)
+│   │   └── __tests__/
+│   │       └── utils.test.ts  # Tests for pure utility functions
+│   ├── vite.config.ts         # Dev server (port 5173), /api proxy to :8000, vitest config
+│   ├── tsconfig.json          # Strict TS (noUnusedLocals, noUnusedParameters)
+│   └── eslint.config.js       # ESLint config
 ├── docs/                      # Project documentation
 ├── planning/                  # Feature planning docs
 │   ├── templates/             # feature.md template
 │   └── <branch-name>/        # Per-branch planning (mirrors git branch)
 │       └── feature.md         # Feature requirements and design
-├── pyproject.toml             # Python config (deps, ruff, mypy, pytest)
-└── start.sh                   # Dev server launcher
+├── .env.example               # Environment variables template (JWT_SECRET, etc.)
+├── .pre-commit-config.yaml    # Git hooks config (ruff, mypy, eslint, tsc, gitleaks, etc.)
+├── pyproject.toml             # Python config (deps, ruff, mypy, pytest, semantic-release)
+└── start.sh                   # Dev server launcher (backend + frontend)
 ```
+
+## What Already Exists
+
+This project ships with a **working app** — not just boilerplate. Before writing new code, understand what's already here:
+
+**Backend (fully functional):**
+- User registration and login with JWT auth (bcrypt passwords, 72h token expiry)
+- `get_current_user` FastAPI dependency — add it to any route that needs auth
+- Async SQLite database with WAL mode, schema auto-creation on startup
+- Notes CRUD API as a reference implementation (list, create, get, update, delete)
+- Health check endpoint at `/api/health`
+
+**Frontend (fully functional):**
+- Login page with registration flow
+- Dashboard with Notes CRUD UI (cards, create/edit dialog, delete confirmation)
+- Settings page with theme toggle
+- App shell with sidebar navigation, header, and content area
+- API client (`api.ts`) that handles auth tokens and snake/camelCase conversion automatically
+
+**The notes app is example scaffolding.** It demonstrates the project's patterns for CRUD, dialogs, API calls, auth, etc. Replace it with your actual domain — don't build alongside it.
+
+## Where to Put New Code
+
+| What you're adding | Where it goes |
+|---|---|
+| New API resource (e.g., photos, tasks) | `src/{{name}}/routes/new_routes.py` — copy `note_routes.py` as a starting point, mount in `main.py` |
+| New domain/API models | `src/{{name}}/models.py` — domain models at top, request/response schemas below |
+| New database tables | `src/{{name}}/database.py` — add to `SCHEMA` string, tables auto-create on startup |
+| New service/business logic | `src/{{name}}/services/` — create this directory for non-trivial logic that doesn't belong in routes |
+| New frontend page | `frontend/src/pages/NewPage.tsx` — add route in `App.tsx`, add nav link in `Sidebar.tsx` |
+| New frontend component | `frontend/src/components/` — shared/reusable UI components |
+| New API namespace | `frontend/src/api.ts` — add a new namespace object (like `notes: { ... }`) |
+| New TypeScript types | `frontend/src/types.ts` — keep frontend types in sync with backend response schemas |
+| New pure utility function | `frontend/src/utils.ts` — must have a corresponding test in `__tests__/` |
+| Backend tests | `tests/test_<module>.py` — use fixtures from `conftest.py` |
+| Frontend tests | `frontend/src/__tests__/` — vitest, test pure functions and utilities |
 
 ## Planning Convention
 When starting a feature branch, create `planning/<branch-name>/feature.md` to capture requirements and design decisions before coding. This serves as a durable reference artifact. Use Claude's built-in task tools for implementation tracking.
@@ -92,9 +150,12 @@ Tests must be written alongside the code they cover, not bolted on after the fac
 ## Patterns to Follow
 The notes app (`note_routes.py`, `Dashboard.tsx`, etc.) is example scaffolding that demonstrates the project's patterns. Replace it with your actual domain — don't build alongside it.
 
-- **Backend CRUD**: See `note_routes.py` — ownership checks, PATCH with partial updates, 204 on DELETE
-- **API client**: See `api.ts` — namespaced methods, automatic snake/camelCase conversion, token handling
-- **Dialogs**: See `Dashboard.tsx` — shared create/edit dialog distinguished by null/non-null editing state
-- **State management**: `useState` + `useEffect` for API data, `useCallback` for stable fetch functions
-- **Auth flow**: JWT tokens stored in localStorage, `AuthContext` provides login/register/logout
+- **Backend CRUD**: See `note_routes.py` — ownership checks via `user_id`, PATCH with partial updates (`None` = unchanged), 204 on DELETE, prefix-based router (`/api/notes`)
+- **Database**: See `database.py` — `SCHEMA` string for table definitions, `get_db()` for connection, `row_to_dict()` for Row→dict, `encode_tags()`/`decode_tags()` for JSON list columns
+- **Models**: See `models.py` — domain models (internal, includes `hashed_password`) separate from response schemas (public, no secrets). Create/Update request models separate from response models.
+- **API client**: See `api.ts` — namespaced methods (`api.notes.list()`), automatic snake_case/camelCase conversion on all request/response payloads, 401 auto-redirect to login
+- **Dialogs**: See `Dashboard.tsx` — shared create/edit dialog distinguished by null/non-null `editing` state, delete confirmation dialog
+- **State management**: `useState` + `useEffect` for API data, `useCallback` for stable fetch functions, loading/error/saving states
+- **Auth flow**: JWT tokens stored in localStorage (`{{name}}-token`), `AuthContext` provides login/register/logout, `ProtectedRoute` wraps authenticated pages
 - **Theme**: Dark/light toggle via `ThemeContext`, persisted in localStorage
+- **Vite proxy**: Frontend dev server proxies `/api` requests to backend at `localhost:8000` — no CORS issues in dev
