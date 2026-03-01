@@ -109,7 +109,7 @@ This project ships with a **working app** — not just boilerplate. Before writi
 When starting a feature branch, create `planning/<branch-name>/feature.md` to capture requirements and design decisions before coding. This serves as a durable reference artifact. Use Claude's built-in task tools for implementation tracking.
 
 ## Commit Convention
-This repo uses **conventional commits** enforced by a `commit-msg` hook. Format: `type(optional-scope): description`
+This repo uses **conventional commits** enforced by a `commit-msg` hook **on the main branch only**. Feature branches can use any commit message format since they get squash-merged to main. Format: `type(optional-scope): description`
 
 - `feat:` — new feature (bumps minor)
 - `fix:` — bug fix (bumps patch)
