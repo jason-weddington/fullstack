@@ -7,26 +7,35 @@ import {
   IconButton,
   Box,
   Tooltip,
+##if AUTH
   Avatar,
   Menu,
   MenuItem,
   ListItemIcon,
+##endif
 } from '@mui/material'
 import MenuIcon from '@mui/icons-material/Menu'
 import DarkModeIcon from '@mui/icons-material/DarkMode'
 import LightModeIcon from '@mui/icons-material/LightMode'
 import SettingsIcon from '@mui/icons-material/Settings'
+##if AUTH
 import LogoutIcon from '@mui/icons-material/Logout'
+##endif
 import AppsIcon from '@mui/icons-material/Apps'
 import { useThemeMode } from '../contexts/ThemeContext'
+##if AUTH
 import { useAuth } from '../contexts/AuthContext'
+##endif
 import Sidebar from './Sidebar'
 
 export default function Layout() {
   const { mode, toggleTheme } = useThemeMode()
+##if AUTH
   const { user, logout } = useAuth()
+##endif
   const navigate = useNavigate()
   const [sidebarOpen, setSidebarOpen] = useState(true)
+##if AUTH
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
 
   const displayName = user?.email ?? ''
@@ -36,6 +45,7 @@ export default function Layout() {
     logout()
     navigate('/login')
   }
+##endif
 
   return (
     <Box sx={{ display: 'flex', minHeight: '100vh' }}>
@@ -70,6 +80,14 @@ export default function Layout() {
             </IconButton>
           </Tooltip>
 
+##if NOAUTH
+          <Tooltip title="Settings">
+            <IconButton color="inherit" onClick={() => navigate('/settings')}>
+              <SettingsIcon />
+            </IconButton>
+          </Tooltip>
+##endif
+##if AUTH
           <Tooltip title={displayName}>
             <IconButton onClick={(e) => setAnchorEl(e.currentTarget)} sx={{ p: 0 }}>
               <Avatar
@@ -116,6 +134,7 @@ export default function Layout() {
               Sign Out
             </MenuItem>
           </Menu>
+##endif
         </Toolbar>
       </AppBar>
 

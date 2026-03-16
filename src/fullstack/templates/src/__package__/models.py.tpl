@@ -7,6 +7,7 @@ from pydantic import BaseModel
 
 # --- Domain Models ---
 
+##if AUTH
 
 class User(BaseModel):
     """App user account."""
@@ -16,12 +17,15 @@ class User(BaseModel):
     hashed_password: str
     created_at: datetime
 
+##endif
 
 class Note(BaseModel):
     """A user's note."""
 
     id: str
+##if AUTH
     user_id: str
+##endif
     title: str = ""
     content: str = ""
     tags: list[str] = []
@@ -31,6 +35,7 @@ class Note(BaseModel):
 
 # --- API Request/Response Schemas ---
 
+##if AUTH
 
 class RegisterRequest(BaseModel):
     """Account registration request."""
@@ -60,6 +65,7 @@ class UserResponse(BaseModel):
     email: str
     created_at: datetime
 
+##endif
 
 class CreateNoteRequest(BaseModel):
     """Create a new note."""

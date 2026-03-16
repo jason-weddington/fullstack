@@ -10,6 +10,7 @@ _DB_PATH = Path("data/{{name}}.db")
 _db: aiosqlite.Connection | None = None
 
 SCHEMA = """
+##if AUTH
 CREATE TABLE IF NOT EXISTS users (
     id TEXT PRIMARY KEY,
     email TEXT UNIQUE NOT NULL,
@@ -17,17 +18,22 @@ CREATE TABLE IF NOT EXISTS users (
     created_at TEXT NOT NULL
 );
 
+##endif
 CREATE TABLE IF NOT EXISTS notes (
     id TEXT PRIMARY KEY,
+##if AUTH
     user_id TEXT NOT NULL REFERENCES users(id),
+##endif
     title TEXT NOT NULL DEFAULT '',
     content TEXT NOT NULL DEFAULT '',
     tags TEXT NOT NULL DEFAULT '[]',
     created_at TEXT NOT NULL,
     updated_at TEXT NOT NULL
 );
+##if AUTH
 
 CREATE INDEX IF NOT EXISTS idx_notes_user_id ON notes(user_id);
+##endif
 """
 
 
@@ -58,9 +64,31 @@ async def close_db() -> None:
         _db = None
 
 
-def row_to_dict(row: Any) -> dict[str, Any]:
-    """Convert a Row to a plain dict."""
-    return dict(row)
+async def fetch_one(
+    sql: str, params: tuple[Any, ...] = ()
+) -> dict[str, Any] | None:
+    """Execute a query and return the first row as a dict, or None."""
+    db = await get_db()
+    cursor = await db.execute(sql, params)
+    row = await cursor.fetchone()
+    return dict(row) if row is not None else None
+
+
+async def fetch_all(
+    sql: str, params: tuple[Any, ...] = ()
+) -> list[dict[str, Any]]:
+    """Execute a query and return all rows as dicts."""
+    db = await get_db()
+    cursor = await db.execute(sql, params)
+    rows = await cursor.fetchall()
+    return [dict(r) for r in rows]
+
+
+async def execute(sql: str, params: tuple[Any, ...] = ()) -> None:
+    """Execute a write query and commit."""
+    db = await get_db()
+    await db.execute(sql, params)
+    await db.commit()
 
 
 def encode_tags(tags: list[str]) -> str:

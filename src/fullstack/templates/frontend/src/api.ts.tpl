@@ -1,4 +1,7 @@
-import type { AuthResponse, Note, UserResponse } from './types'
+import type { Note } from './types'
+##if AUTH
+import type { AuthResponse, UserResponse } from './types'
+##endif
 import { toSnakeCase, toCamelCase, convertKeys } from './utils'
 
 // --- Helpers ---
@@ -15,16 +18,20 @@ class ApiError extends Error {
   }
 }
 
+##if AUTH
 function getToken(): string | null {
   return localStorage.getItem('{{name}}-token')
 }
 
+##endif
 // --- Core request ---
 
 async function request<T>(method: string, path: string, body?: unknown): Promise<T> {
   const headers: Record<string, string> = {}
+##if AUTH
   const token = getToken()
   if (token) headers['Authorization'] = `Bearer ${token}`
+##endif
 
   let fetchBody: BodyInit | undefined
   if (body !== undefined) {
@@ -36,6 +43,7 @@ async function request<T>(method: string, path: string, body?: unknown): Promise
 
   if (res.status === 204) return undefined as T
 
+##if AUTH
   if (res.status === 401) {
     localStorage.removeItem('{{name}}-token')
     localStorage.removeItem('{{name}}-user')
@@ -43,6 +51,7 @@ async function request<T>(method: string, path: string, body?: unknown): Promise
     throw new ApiError(401, 'Unauthorized')
   }
 
+##endif
   if (!res.ok) {
     let detail = res.statusText
     try {
@@ -61,6 +70,7 @@ async function request<T>(method: string, path: string, body?: unknown): Promise
 // --- Namespaced API ---
 
 export const api = {
+##if AUTH
   auth: {
     register: (email: string, password: string) =>
       request<AuthResponse>('POST', '/auth/register', { email, password }),
@@ -70,6 +80,7 @@ export const api = {
     me: () => request<UserResponse>('GET', '/auth/me'),
   },
 
+##endif
   notes: {
     list: () => request<Note[]>('GET', '/notes'),
     create: (data: { title?: string; content?: string; tags?: string[] }) =>

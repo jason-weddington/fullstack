@@ -9,6 +9,7 @@ async def test_health(client: AsyncClient):
     assert res.json() == {"status": "ok"}
 
 
+##if AUTH
 async def test_register_and_login(client: AsyncClient):
     # Register
     res = await client.post(
@@ -29,6 +30,8 @@ async def test_register_and_login(client: AsyncClient):
     assert "token" in res.json()
 
 
+##endif
+##if AUTH
 async def test_notes_crud(client: AsyncClient, auth_headers: dict[str, str]):
     # Create a note
     res = await client.post(
@@ -63,3 +66,37 @@ async def test_notes_crud(client: AsyncClient, auth_headers: dict[str, str]):
     res = await client.get("/api/notes", headers=auth_headers)
     assert res.status_code == 200
     assert len(res.json()) == 0
+##else
+async def test_notes_crud(client: AsyncClient):
+    # Create a note
+    res = await client.post(
+        "/api/notes",
+        json={"title": "Test Note", "content": "Hello world", "tags": ["test"]},
+    )
+    assert res.status_code == 201
+    note = res.json()
+    assert note["title"] == "Test Note"
+    note_id = note["id"]
+
+    # List notes
+    res = await client.get("/api/notes")
+    assert res.status_code == 200
+    assert len(res.json()) == 1
+
+    # Update the note
+    res = await client.patch(
+        f"/api/notes/{note_id}",
+        json={"title": "Updated Note"},
+    )
+    assert res.status_code == 200
+    assert res.json()["title"] == "Updated Note"
+
+    # Delete the note
+    res = await client.delete(f"/api/notes/{note_id}")
+    assert res.status_code == 204
+
+    # Verify deletion
+    res = await client.get("/api/notes")
+    assert res.status_code == 200
+    assert len(res.json()) == 0
+##endif

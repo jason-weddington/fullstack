@@ -10,7 +10,7 @@ import jwt
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
-from {{name}}.database import get_db, row_to_dict
+from {{name}}.database import execute, fetch_one
 from {{name}}.models import User
 
 SECRET_KEY = os.environ.get("JWT_SECRET", "dev-secret-change-me")
@@ -72,17 +72,15 @@ async def get_current_user(
 ) -> User:
     """FastAPI dependency that extracts and validates the current user."""
     user_id = decode_token(credentials.credentials)
-    db = await get_db()
-    cursor = await db.execute(
+    row = await fetch_one(
         "SELECT * FROM users WHERE id = ?", (user_id,)
     )
-    row = await cursor.fetchone()
     if row is None:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="User not found",
         )
-    return User(**row_to_dict(row))
+    return User(**row)
 
 
 async def register_user(email: str, password: str) -> User:
@@ -91,12 +89,10 @@ async def register_user(email: str, password: str) -> User:
     Raises:
         HTTPException: If the email is already registered.
     """
-    db = await get_db()
-
-    cursor = await db.execute(
+    existing = await fetch_one(
         "SELECT id FROM users WHERE email = ?", (email,)
     )
-    if await cursor.fetchone():
+    if existing:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
             detail="Email already registered",
@@ -109,12 +105,9 @@ async def register_user(email: str, password: str) -> User:
         created_at=datetime.now(UTC),
     )
 
-    sql = (
+    await execute(
         "INSERT INTO users (id, email, hashed_password, created_at)"
-        " VALUES (?, ?, ?, ?)"
-    )
-    await db.execute(
-        sql,
+        " VALUES (?, ?, ?, ?)",
         (
             user.id,
             user.email,
@@ -122,7 +115,6 @@ async def register_user(email: str, password: str) -> User:
             user.created_at.isoformat(),
         ),
     )
-    await db.commit()
 
     return user
 
@@ -133,18 +125,16 @@ async def authenticate_user(email: str, password: str) -> User:
     Raises:
         HTTPException: If credentials are invalid.
     """
-    db = await get_db()
-    cursor = await db.execute(
+    row = await fetch_one(
         "SELECT * FROM users WHERE email = ?", (email,)
     )
-    row = await cursor.fetchone()
     if row is None:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid credentials",
         )
 
-    user = User(**row_to_dict(row))
+    user = User(**row)
     if not verify_password(password, user.hashed_password):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
