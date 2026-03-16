@@ -4,11 +4,20 @@ version = "0.1.0"
 description = "{{title}}"
 requires-python = ">=3.13"
 dependencies = [
+##if SQLITE
     "aiosqlite>=0.20",
+##endif
+##if POSTGRES
+    "asyncpg>=0.30",
+##endif
+##if AUTH
     "bcrypt>=4.0",
+##endif
     "fastapi>=0.115",
     "pydantic>=2.10",
+##if AUTH
     "pyjwt>=2.9",
+##endif
     "uvicorn[standard]>=0.34",
 ]
 
@@ -64,9 +73,17 @@ plugins = []
 module = "tests.*"
 disallow_untyped_defs = false
 
+##if SQLITE
 [[tool.mypy.overrides]]
 module = "aiosqlite.*"
 ignore_missing_imports = true
+##endif
+
+##if POSTGRES
+[[tool.mypy.overrides]]
+module = "asyncpg.*"
+ignore_missing_imports = true
+##endif
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

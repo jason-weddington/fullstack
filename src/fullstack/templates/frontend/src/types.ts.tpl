@@ -1,3 +1,4 @@
+##if AUTH
 export interface UserResponse {
   id: string
   email: string
@@ -9,6 +10,7 @@ export interface AuthResponse {
   user: UserResponse
 }
 
+##endif
 export interface Note {
   id: string
   title: string

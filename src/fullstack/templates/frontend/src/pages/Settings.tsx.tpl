@@ -5,14 +5,20 @@ import {
   CardContent,
   Switch,
   FormControlLabel,
+##if AUTH
   Divider,
+##endif
 } from '@mui/material'
 import { useThemeMode } from '../contexts/ThemeContext'
+##if AUTH
 import { useAuth } from '../contexts/AuthContext'
+##endif
 
 export default function Settings() {
   const { mode, toggleTheme } = useThemeMode()
+##if AUTH
   const { user } = useAuth()
+##endif
 
   return (
     <Box sx={{ maxWidth: 600 }}>
@@ -35,6 +41,7 @@ export default function Settings() {
           </Box>
         </CardContent>
       </Card>
+##if AUTH
 
       <Card sx={{ border: 1, borderColor: 'divider' }}>
         <CardContent>
@@ -50,6 +57,7 @@ export default function Settings() {
           </Typography>
         </CardContent>
       </Card>
+##endif
     </Box>
   )
 }

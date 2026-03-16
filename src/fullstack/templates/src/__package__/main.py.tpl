@@ -7,7 +7,9 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from {{name}}.database import close_db, init_db
+##if AUTH
 from {{name}}.routes.auth_routes import router as auth_router
+##endif
 from {{name}}.routes.note_routes import router as note_router
 
 
@@ -29,7 +31,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+##if AUTH
 app.include_router(auth_router)
+##endif
 app.include_router(note_router)
 
 
