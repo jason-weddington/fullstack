@@ -202,7 +202,22 @@ export default function Dashboard() {
       )}
 
       {/* Create/Edit Dialog */}
-      <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)} fullWidth maxWidth="sm">
+      <Dialog
+        open={dialogOpen}
+        onClose={() => setDialogOpen(false)}
+        fullWidth
+        maxWidth="sm"
+        onKeyDown={(e) => {
+          if (
+            e.key === 'Enter' &&
+            !e.shiftKey &&
+            ((e.metaKey || e.ctrlKey) || !(e.target instanceof HTMLTextAreaElement))
+          ) {
+            e.preventDefault()
+            if (!saving && title.trim()) handleSave()
+          }
+        }}
+      >
         <DialogTitle>{editing ? 'Edit Note' : 'New Note'}</DialogTitle>
         <DialogContent>
           <TextField
