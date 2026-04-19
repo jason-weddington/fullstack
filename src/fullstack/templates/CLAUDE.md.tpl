@@ -187,7 +187,7 @@ Tests must be written alongside the code they cover, not bolted on after the fac
 - **Proximity** — related controls live next to the content they affect
 - **Consistency** — same patterns for same problems (dialogs, loading states, error handling)
 - **Sensible defaults** — every setting has a smart default so users can start immediately
-- **Keyboard composability** — keyboard shortcuts for common actions, forms submit on Enter
+- **Keyboard-first dialogs** — all form dialogs save on Enter via `onKeyDown` on `<Dialog>`. Cmd/Ctrl+Enter saves from textareas (plain Enter inserts a newline). Guard with `!(e.target instanceof HTMLTextAreaElement)` for non-textarea fields
 - **Adapt to context** — empty states guide users, populated states show data efficiently
 - **Progressive disclosure** — show core actions up front, advanced options in settings/dialogs
 - **Minimal chrome** — content-first layout, UI gets out of the way
