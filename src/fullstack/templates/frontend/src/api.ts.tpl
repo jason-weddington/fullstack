@@ -47,7 +47,13 @@ async function request<T>(method: string, path: string, body?: unknown): Promise
   if (res.status === 401) {
     localStorage.removeItem('{{name}}-token')
     localStorage.removeItem('{{name}}-user')
-    window.location.href = '/login'
+    // Defense in depth: don't redirect when already on /login. A global
+    // provider above the router that fires an authenticated request on mount
+    // will 401 from the login page, and an unguarded redirect re-mounts the
+    // app and infinite-loops.
+    if (window.location.pathname !== '/login') {
+      window.location.href = '/login'
+    }
     throw new ApiError(401, 'Unauthorized')
   }
 
