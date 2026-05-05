@@ -20,6 +20,9 @@
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "react-router-dom": "^7.13.0"
+##if LIGHTBOX
+    ,"yet-another-react-lightbox": "^3.30.1"
+##endif
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",

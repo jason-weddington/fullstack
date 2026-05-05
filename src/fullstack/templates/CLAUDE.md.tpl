@@ -213,3 +213,14 @@ The notes app (`note_routes.py`, `Dashboard.tsx`, etc.) is example scaffolding t
 ##endif
 - **Theme**: Dark/light toggle via `ThemeContext`, persisted in localStorage
 - **Vite proxy**: Frontend dev server proxies `/api` requests to backend at `localhost:8000` — no CORS issues in dev
+
+##if LIGHTBOX
+## Photo Lightbox
+
+`frontend/src/components/AppLightbox.tsx` is a YARL-backed lightbox component
+ready to drop into any photo grid. It supports custom slide rendering, an
+info-bar overlay, and optional `f` / `x` / `g` keyboard shortcuts (passed in
+as callbacks). It auto-switches to swipe transitions on mobile and hides
+prev/next chevrons on touch screens. Mount it with `slides={[{src: ...}]}`,
+`open`, `index`, `onClose`, and `onView` props.
+##endif

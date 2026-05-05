@@ -71,8 +71,13 @@ _AUTH_ONLY_FILES = {
     "frontend/src/pages/Login.tsx.tpl",
 }
 
+# Files that are only included when lightbox is enabled
+_LIGHTBOX_ONLY_FILES = {
+    "frontend/src/components/AppLightbox.tsx",
+}
 
-def scaffold(name: str, dest: Path, *, db: str, auth: bool) -> None:
+
+def scaffold(name: str, dest: Path, *, db: str, auth: bool, lightbox: bool) -> None:
     """Copy and render templates into dest directory."""
     title = name.replace("_", " ").title()
     context: dict[str, bool] = {
@@ -80,6 +85,7 @@ def scaffold(name: str, dest: Path, *, db: str, auth: bool) -> None:
         "NOAUTH": not auth,
         "SQLITE": db == "sqlite",
         "POSTGRES": db == "postgres",
+        "LIGHTBOX": lightbox,
     }
     templates = resources.files("fullstack") / "templates"
 
@@ -92,6 +98,10 @@ def scaffold(name: str, dest: Path, *, db: str, auth: bool) -> None:
 
         # Skip auth-only files when auth is disabled
         if not auth and rel in _AUTH_ONLY_FILES:
+            continue
+
+        # Skip lightbox-only files when lightbox is disabled
+        if not lightbox and rel in _LIGHTBOX_ONLY_FILES:
             continue
 
         # Rename __package__ directory to project name
@@ -216,6 +226,12 @@ def main() -> None:
         default=False,
         help="Skip auth scaffolding (single-user / local tool mode)",
     )
+    parser.add_argument(
+        "--lightbox",
+        action="store_true",
+        default=False,
+        help="Include AppLightbox component and yet-another-react-lightbox dependency",
+    )
     args = parser.parse_args()
 
     name: str = args.project_name
@@ -231,14 +247,16 @@ def main() -> None:
     if args.db is None and not args.no_auth:
         # Only prompt for auth if user didn't pass --no-auth
         auth = prompt_auth()
+    lightbox: bool = args.lightbox
 
     title = name.replace("_", " ").title()
     db_label = "PostgreSQL" if db == "postgres" else "SQLite"
     auth_label = "JWT auth" if auth else "no auth"
-    print(f"\nCreating {title} at ./{name}/ ({db_label}, {auth_label})\n")
+    lightbox_label = ", lightbox" if lightbox else ""
+    print(f"\nCreating {title} at ./{name}/ ({db_label}, {auth_label}{lightbox_label})\n")
 
     # 1. Scaffold files
-    scaffold(name, dest, db=db, auth=auth)
+    scaffold(name, dest, db=db, auth=auth, lightbox=lightbox)
     print("  ✓ Project files created")
 
     # 2. Make start.sh executable
