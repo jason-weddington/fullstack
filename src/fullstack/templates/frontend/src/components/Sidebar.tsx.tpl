@@ -8,6 +8,8 @@ import {
   Divider,
   Typography,
   Box,
+  useTheme,
+  useMediaQuery,
 } from '@mui/material'
 import NotesIcon from '@mui/icons-material/StickyNote2'
 import SettingsIcon from '@mui/icons-material/Settings'
@@ -16,11 +18,19 @@ const DRAWER_WIDTH = 240
 
 interface SidebarProps {
   open: boolean
+  onClose?: () => void
 }
 
-export default function Sidebar({ open }: SidebarProps) {
+export default function Sidebar({ open, onClose }: SidebarProps) {
   const location = useLocation()
   const navigate = useNavigate()
+  const theme = useTheme()
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'))
+
+  const handleNav = (path: string) => {
+    navigate(path)
+    if (isMobile) onClose?.()
+  }
 
   const isSelected = (path: string) => {
     if (path === '/') return location.pathname === '/'
@@ -29,11 +39,12 @@ export default function Sidebar({ open }: SidebarProps) {
 
   return (
     <Drawer
-      variant="persistent"
+      variant={isMobile ? 'temporary' : 'persistent'}
       anchor="left"
       open={open}
+      onClose={onClose}
       sx={{
-        width: open ? DRAWER_WIDTH : 0,
+        width: !isMobile && open ? DRAWER_WIDTH : 0,
         flexShrink: 0,
         '& .MuiDrawer-paper': {
           width: DRAWER_WIDTH,
@@ -53,7 +64,7 @@ export default function Sidebar({ open }: SidebarProps) {
       </Box>
 
       <List dense sx={{ px: 0 }}>
-        <ListItemButton selected={isSelected('/')} onClick={() => navigate('/')}>
+        <ListItemButton selected={isSelected('/')} onClick={() => handleNav('/')}>
           <ListItemIcon sx={{ minWidth: 36 }}>
             <NotesIcon fontSize="small" />
           </ListItemIcon>
@@ -66,7 +77,7 @@ export default function Sidebar({ open }: SidebarProps) {
       <List dense sx={{ px: 0 }}>
         <ListItemButton
           selected={isSelected('/settings')}
-          onClick={() => navigate('/settings')}
+          onClick={() => handleNav('/settings')}
         >
           <ListItemIcon sx={{ minWidth: 36 }}>
             <SettingsIcon fontSize="small" />

@@ -7,6 +7,8 @@ import {
   IconButton,
   Box,
   Tooltip,
+  useTheme,
+  useMediaQuery,
 ##if AUTH
   Avatar,
   Menu,
@@ -34,7 +36,9 @@ export default function Layout() {
   const { user, logout } = useAuth()
 ##endif
   const navigate = useNavigate()
-  const [sidebarOpen, setSidebarOpen] = useState(true)
+  const theme = useTheme()
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'))
+  const [sidebarOpen, setSidebarOpen] = useState(!isMobile)
 ##if AUTH
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
 
@@ -138,7 +142,7 @@ export default function Layout() {
         </Toolbar>
       </AppBar>
 
-      <Sidebar open={sidebarOpen} />
+      <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
       <Box
         component="main"
