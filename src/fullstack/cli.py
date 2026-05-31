@@ -235,7 +235,8 @@ def main() -> None:
     args = parser.parse_args()
 
     name: str = args.project_name
-    dest = Path.cwd() / name
+    dir_name = name.replace("_", "-")
+    dest = Path.cwd() / dir_name
 
     if dest.exists() and any(dest.iterdir()):
         print(f"Error: {dest} already exists and is not empty")
@@ -253,7 +254,7 @@ def main() -> None:
     db_label = "PostgreSQL" if db == "postgres" else "SQLite"
     auth_label = "JWT auth" if auth else "no auth"
     lightbox_label = ", lightbox" if lightbox else ""
-    print(f"\nCreating {title} at ./{name}/ ({db_label}, {auth_label}{lightbox_label})\n")
+    print(f"\nCreating {title} at ./{dir_name}/ ({db_label}, {auth_label}{lightbox_label})\n")
 
     # 1. Scaffold files
     scaffold(name, dest, db=db, auth=auth, lightbox=lightbox)
@@ -309,7 +310,7 @@ def main() -> None:
 
     # 8. Post-scaffold instructions
     print(f"\nDone! Next steps:\n")
-    print(f"  cd {name}")
+    print(f"  cd {dir_name}")
 
     if db == "postgres":
         print("  cp .env.example .env       # Set DATABASE_URL")

@@ -8,7 +8,7 @@ Designed for rapid ideation and local prototyping — not production use. You're
 
 ```bash
 uvx --from git+https://github.com/jason-weddington/fullstack.git fullstack my_app
-cd my_app
+cd my-app
 ./start.sh
 ```
 

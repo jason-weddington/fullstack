@@ -12,7 +12,7 @@ A pip-installable CLI (`fullstack`) that scaffolds new AI-native full-stack proj
 # To test, scaffold a project and verify it works:
 uv sync                                          # Install fullstack CLI deps
 uv run fullstack my_test_app                     # Scaffold a new project
-cd my_test_app && ./start.sh                     # Verify it runs (backend :8000, frontend :5173)
+cd my-test-app && ./start.sh                     # Verify it runs (backend :8000, frontend :5173)
 fullstack --version                              # Check installed version
 
 # Inside a generated project, these commands apply:
