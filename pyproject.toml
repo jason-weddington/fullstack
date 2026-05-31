@@ -1,6 +1,6 @@
 [project]
 name = "fullstack"
-version = "0.1.0"
+version = "0.2.0"
 description = "AI-native full-stack starter kit — Python + FastAPI + React + MUI"
 requires-python = ">=3.13"
 dependencies = []
