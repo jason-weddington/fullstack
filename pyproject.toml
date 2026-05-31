@@ -13,6 +13,12 @@ version_toml = ["pyproject.toml:project.version"]
 commit_parser = "conventional"
 changelog_file = "CHANGELOG.md"
 build_command = "uv build"
+commit_message = "chore(release): {version}"
+allow_zero_version = true
+major_on_zero = false
+
+[tool.semantic_release.remote]
+name = "github"
 
 [build-system]
 requires = ["hatchling"]
